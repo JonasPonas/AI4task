@@ -34,4 +34,12 @@ function avg(values) {
   return Math.round(sum / values.length);
 }
 
-module.exports = { readFile, avg };
+function median(values) {
+  let sorted = values.sort();
+  let size = values.length;
+
+  if (size % 2 != 0) return sorted[(size + 1) / 2];
+  else return (sorted[size / 2] + sorted[size / 2 + 1]) / 2;
+}
+
+module.exports = { readFile, avg, median };

@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
 
-const { readFile, avg } = require("../scripts/functions");
+const { readFile, avg, median } = require("../scripts/functions");
 const { invalidDataFilter, sexFilter } = require("../scripts/filters");
 
 router.get("/", function (req, res) {
+  let met = req.query.met || 0;
   try {
     let patients = readFile();
     let filteredInvalid = patients.filter(invalidDataFilter);
@@ -18,7 +19,8 @@ router.get("/", function (req, res) {
           ugiai.push(patient.ugis);
         });
 
-        patient.ugis = String(avg(ugiai));
+        if (met == 0) patient.ugis = String(avg(ugiai));
+        else patient.ugis = String(median(ugiai));
       }
     });
 
