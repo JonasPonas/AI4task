@@ -1,25 +1,31 @@
-const fs = require('fs');
+const express = require("express");
+const router = express.Router();
 
-function readFile() {
-    try {
-        var data = fs.readFileSync('pacientai.csv', 'utf8');
-        const lines = data.split('\n');
+const { readFile, avg } = require("../scripts/functions");
+const { invalidDataFilter, sexFilter } = require("../scripts/filters");
 
-        let pacientai = [];
-        for (var i = 1; i < lines.length; i++) {
-            let col = lines[i].split(',');
-            pacientai.push({
-                idobject: col[0],
-                pacientas: col[1],
-                lytis: col[2],
-                ugis: col[3],
-                svoris: col[4].replace(/[\r\n]+/gm, "")
-            });
-        }
-        return pacientai;
-    } catch (e) {
-        return null;
-    }
-}
+router.get("/", function (req, res) {
+  try {
+    let patients = readFile();
+    let filteredInvalid = patients.filter(invalidDataFilter);
 
-module.exports = { readFile() };
+    patients.forEach((patient) => {
+      if (patient.ugis == "?") {
+        let filteredSex = filteredInvalid.filter(sexFilter, patient.lytis);
+        let ugiai = new Array();
+
+        filteredSex.forEach((patient) => {
+          ugiai.push(patient.ugis);
+        });
+
+        patient.ugis = String(avg(ugiai));
+      }
+    });
+
+    res.send(patients);
+  } catch {
+    res.status(500).send();
+  }
+});
+
+module.exports = router;
