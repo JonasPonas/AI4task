@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { readFile, avg, median } = require("../scripts/functions");
+const { readFile, avg, median, corr } = require("../scripts/functions");
 const { invalidDataFilter, sexFilter } = require("../scripts/filters");
 
 router.get("/", function (req, res) {
@@ -12,6 +12,7 @@ router.get("/", function (req, res) {
 
     patients.forEach((patient) => {
       if (patient.ugis == "?") {
+        let badValue = patient;
         let filteredSex = filteredInvalid.filter(sexFilter, patient.lytis);
         let ugiai = new Array();
 
@@ -20,10 +21,10 @@ router.get("/", function (req, res) {
         });
 
         if (met == 0) patient.ugis = String(avg(ugiai));
+        else if (met == 2) patient.ugis = String(corr(filteredSex, ugiai, badValue));
         else patient.ugis = String(median(ugiai));
       }
     });
-
     res.send(patients);
   } catch {
     res.status(500).send();
