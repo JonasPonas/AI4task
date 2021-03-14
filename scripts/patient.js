@@ -1,10 +1,19 @@
 class Patient {
-  constructor(idobject, pacientas, lytis, ugis, svoris) {
+  constructor(idobject, pacientas, karsciavimas, kosulys, nuovargis, sunkumas, skausmas, judesiai, galva, konjutivytas, viduriavimas, gerkle, klasteris) {
     this.idobject = idobject;
     this.pacientas = pacientas;
-    this.lytis = lytis;
-    this.ugis = ugis;
-    this.svoris = svoris;
+    this.karsciavimas = karsciavimas;
+    this.kosulys = kosulys;
+    this.nuovargis = nuovargis;
+    this.sunkumas = sunkumas;
+    this.skausmas = skausmas;
+    this.judesiai = judesiai;
+    this.kosulys = kosulys;
+    this.galva = galva;
+    this.konjutivytas = konjutivytas;
+    this.viduriavimas = viduriavimas;
+    this.gerkle = gerkle;
+    this.klasteris = null;
   }
 }
 

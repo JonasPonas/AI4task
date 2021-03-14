@@ -16,7 +16,14 @@ function readFile() {
           col[1],
           col[2],
           col[3],
-          col[4].replace(/[\r\n]+/gm, "")
+          col[4],
+          col[5],
+          col[6],
+          col[7],
+          col[8],
+          col[9],
+          col[10],
+          col[11].replace(/[\r\n]+/gm, "")
         )
       );
     }
@@ -26,48 +33,81 @@ function readFile() {
   }
 }
 
-function avg(values) {
-  let sum = 0;
-  values.forEach((val) => {
-    sum += Number(val);
-  });
-  return Math.round(sum / values.length);
+function kmeans(arrayToProcess, Clusters) {
+
+  var Groups = new Array();
+  var Centroids = new Array();
+
+  var oldCentroids = new Array();
+  var changed = false;
+
+  for (initGroups = 0; initGroups < Clusters; initGroups++) {
+      Groups[initGroups] = new Array();
+  }
+
+  initialCentroids = Math.round(arrayToProcess.length / (Clusters + 1));
+
+  for (i = 0; i < Clusters; i++) {
+      Centroids[i] = arrayToProcess[(initialCentroids * (i + 1))];
+  }
+
+  do {
+      for (j = 0; j < Clusters; j++) {
+          Groups[j] = [];
+      }
+
+      changed = false;
+
+      for (i = 0; i < arrayToProcess.length; i++) {
+          Distance = -1;
+          oldDistance = -1
+
+          for (j = 0; j < Clusters; j++) {
+
+              distance = Math.sqrt(Math.pow(( arrayToProcess[i].karsciavimas - Centroids[j].karsciavimas), 2) +
+              Math.pow((arrayToProcess[i].kosulys - Centroids[j].kosulys), 2) + 
+              Math.pow((arrayToProcess[i].nuovargis - Centroids[j].nuovargis), 2) + 
+              Math.pow((arrayToProcess[i].sunkumas - Centroids[j].sunkumas), 2) + 
+              Math.pow((arrayToProcess[i].skausmas - Centroids[j].skausmas), 2) + 
+              Math.pow((arrayToProcess[i].judesiai - Centroids[j].judesiai), 2) + 
+              Math.pow((arrayToProcess[i].kosulys - Centroids[j].kosulys), 2) + 
+              Math.pow((arrayToProcess[i].galva - Centroids[j].galva), 2) + 
+              Math.pow((arrayToProcess[i].konjutivytas - Centroids[j].konjutivytas), 2) + 
+              Math.pow((arrayToProcess[i].viduriavimas - Centroids[j].viduriavimas), 2) + 
+              Math.pow((arrayToProcess[i].gerkle - Centroids[j].gerkle), 2));
+
+              if (oldDistance == -1) {
+                  oldDistance = distance;
+                  newGroup = j;
+              } else if (distance <= oldDistance) {
+                  newGroup = j;
+                  oldDistance = distance;
+              }
+          }
+          Groups[newGroup].push(arrayToProcess[i]);
+      }
+      oldCentroids = Centroids;
+      for (j = 0; j < Clusters; j++) {
+          total = 0;
+
+          newCentroid = 0;
+          newCentroid = Groups[j][Groups[j].length/2]
+          Centroids[j] = newCentroid;
+      }
+      for (j = 0; j < Clusters; j++) {
+          if (JSON.stringify(Centroids[j]) != JSON.stringify(oldCentroids[j])) {
+              changed = true;
+          }
+      }
+  } while (changed == true);
+
+  for (i = 0; i < Groups.length; i ++) {
+      for (j = 0; j < Groups[i].length;j++) {
+          Groups[i][j].klasteris = i;
+        }
+      
+  }
+  return Groups;
 }
 
-function median(values) {
-  let sorted = values.sort();
-  let size = values.length;
-
-  if (size % 2 != 0) return sorted[(size + 1) / 2];
-  else return (sorted[size / 2] + sorted[size / 2 + 1]) / 2;
-}
-
-function corr(values, ugiai, badValue) {
-  let x = 0, y = 0, xy = 0, x2 = 0, y2 = 0;
-  let length = parseInt(Object.keys(values).length,10)
-  let svoriai = new Array();
-
-  values.forEach((patient) => {
-    x += parseInt(patient.ugis,10);
-    xy += parseInt(patient.ugis,10) * parseInt(patient.svoris,10);
-    y += parseInt(patient.svoris,10);
-    x2 += Math.pow(parseInt(patient.ugis,10),2);
-    y2 += Math.pow(parseInt(patient.svoris,10),2);
-  });
-
-  let corrCoef = ((length * xy - x * y) /
-    Math.sqrt(Math.abs((length * x2  - Math.pow(x,2))) * Math.abs((length * y2 - Math.pow(y,2)))))
-
-    values.forEach((patient) => {
-      svoriai.push(patient.svoris);
-    });
-
-    let avgUgis = avg(ugiai);
-    let avgSvoris = avg(svoriai);
-
-  return (avgUgis + (1/corrCoef) * (corrCoef * (parseInt(badValue.svoris)- avgSvoris)));
-}
-
-
-
-module.exports = { readFile, avg, median, corr };
+module.exports = { readFile, kmeans };
