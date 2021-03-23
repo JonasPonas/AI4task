@@ -13,4 +13,22 @@ router.get("/", function (req, res) {
   }
 });
 
+router.get("/filter", function (req, res) {
+  try {
+    let patients = readFile();
+
+    let clustered = kmeans(patients, 3);
+
+    for (let i = 0; i < clustered.length; i++) {
+      const result = clustered[i].find(
+        ({ pacientas }) => pacientas === "Vardas1"
+      );
+      if (result != undefined) res.send(clustered[i]);
+    }
+    res.status(404).send();
+  } catch {
+    res.status(500).send();
+  }
+});
+
 module.exports = router;
