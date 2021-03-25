@@ -37,6 +37,8 @@ function kmeans(arrayToProcess, Clusters) {
 
   var Groups = new Array();
   var Centroids = new Array();
+  var FirstCentroids = new Array();
+  var FinalCentroids = new Array();
 
   var oldCentroids = new Array();
   var changed = false;
@@ -47,8 +49,10 @@ function kmeans(arrayToProcess, Clusters) {
 
   initialCentroids = Math.round(arrayToProcess.length / (Clusters + 1));
 
-  for (i = 0; i < Clusters; i++) {
-      Centroids[i] = arrayToProcess[(initialCentroids * (i + 1))];
+  for (i = 0; i < Clusters; i++) { ///pradiniai
+      var x = arrayToProcess[(initialCentroids * (i + 1))];
+      Centroids[i] = x;
+      FirstCentroids[i] = x.pacientas;
   }
 
   do {
@@ -59,7 +63,7 @@ function kmeans(arrayToProcess, Clusters) {
       changed = false;
 
       for (i = 0; i < arrayToProcess.length; i++) {
-          Distance = -1;
+          distance = -1;
           oldDistance = -1
 
           for (j = 0; j < Clusters; j++) {
@@ -86,14 +90,16 @@ function kmeans(arrayToProcess, Clusters) {
           }
           Groups[newGroup].push(arrayToProcess[i]);
       }
+
       oldCentroids = Centroids;
       for (j = 0; j < Clusters; j++) {
           total = 0;
-
           newCentroid = 0;
-          newCentroid = Groups[j][Groups[j].length/2]
+          newCentroid = Groups[j][Math.floor(Groups[j].length / 2)]
           Centroids[j] = newCentroid;
       }
+
+
       for (j = 0; j < Clusters; j++) {
           if (JSON.stringify(Centroids[j]) != JSON.stringify(oldCentroids[j])) {
               changed = true;
@@ -107,6 +113,15 @@ function kmeans(arrayToProcess, Clusters) {
         }
       
   }
+
+
+  for (i = 0; i < oldCentroids.length; i++)
+  {
+    FinalCentroids[i] = oldCentroids[i].pacientas;
+  }
+
+  Groups.push(FirstCentroids)
+  Groups.push(FinalCentroids)
   return Groups;
 }
 

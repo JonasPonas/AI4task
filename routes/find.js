@@ -19,7 +19,7 @@ router.get("/filter", function (req, res) {
 
     let clustered = kmeans(patients, 3);
 
-    for (let i = 0; i < clustered.length; i++) {
+    for (let i = 0; i < clustered.length - 2; i++) {
       const result = clustered[i].find(
         ({ pacientas }) => pacientas === "Vardas1"
       );
