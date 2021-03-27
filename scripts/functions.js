@@ -1,113 +1,103 @@
 const fs = require("fs");
 
-const Patient = require("./patient");
+const Apex = require("./apex");
 
 function readFile() {
   try {
-    var data = fs.readFileSync("pacientai.csv", "utf8");
+    var data = fs.readFileSync("virsunes.csv", "utf8");
     const lines = data.split("\n");
 
-    let pacientai = [];
+    let virsunes = [];
     for (var i = 1; i < lines.length; i++) {
       let col = lines[i].split(",");
-      pacientai.push(
-        new Patient(
+      virsunes.push(
+        new Apex(
           col[0],
           col[1],
           col[2],
-          col[3],
-          col[4],
-          col[5],
-          col[6],
-          col[7],
-          col[8],
-          col[9],
-          col[10],
-          col[11].replace(/[\r\n]+/gm, "")
+          col[3].replace(/[\r\n]+/gm, "")
         )
       );
     }
-    return pacientai;
+    return virsunes;
   } catch (e) {
     return null;
   }
 }
 
-function kmeans(arrayToProcess, Clusters) {
+function prim(array) {
+  var minTree = new Array();
+  var insert_FLAG = true;
 
-  var Groups = new Array();
-  var Centroids = new Array();
+  var firstRndApex = array[Math.floor(Math.random() * array.length)].pradine;
 
-  var oldCentroids = new Array();
-  var changed = false;
+  var lowestDistance = new Apex()
+  lowestDistance.pradine = 'Z';
+  lowestDistance.atstumas = 100;
 
-  for (initGroups = 0; initGroups < Clusters; initGroups++) {
-      Groups[initGroups] = new Array();
-  }
+    array.forEach(element => {
+      if (element.pradine == firstRndApex && parseInt(lowestDistance.atstumas) > parseInt(element.atstumas)) {
+        lowestDistance = element;
+      }
+    });
 
-  initialCentroids = Math.round(arrayToProcess.length / (Clusters + 1));
-
-  for (i = 0; i < Clusters; i++) {
-      Centroids[i] = arrayToProcess[(initialCentroids * (i + 1))];
-  }
+    minTree.push(lowestDistance)
 
   do {
-      for (j = 0; j < Clusters; j++) {
-          Groups[j] = [];
-      }
 
-      changed = false;
+    var lowestDistance = new Apex()
+    lowestDistance.pradine = 'Z';
+    lowestDistance.atstumas = 100;
 
-      for (i = 0; i < arrayToProcess.length; i++) {
-          Distance = -1;
-          oldDistance = -1
 
-          for (j = 0; j < Clusters; j++) {
+  if (minTree.length > 0) {
 
-              distance = Math.sqrt(Math.pow(( arrayToProcess[i].karsciavimas - Centroids[j].karsciavimas), 2) +
-              Math.pow((arrayToProcess[i].kosulys - Centroids[j].kosulys), 2) + 
-              Math.pow((arrayToProcess[i].nuovargis - Centroids[j].nuovargis), 2) + 
-              Math.pow((arrayToProcess[i].sunkumas - Centroids[j].sunkumas), 2) + 
-              Math.pow((arrayToProcess[i].skausmas - Centroids[j].skausmas), 2) + 
-              Math.pow((arrayToProcess[i].judesiai - Centroids[j].judesiai), 2) + 
-              Math.pow((arrayToProcess[i].kosulys - Centroids[j].kosulys), 2) + 
-              Math.pow((arrayToProcess[i].galva - Centroids[j].galva), 2) + 
-              Math.pow((arrayToProcess[i].konjutivytas - Centroids[j].konjutivytas), 2) + 
-              Math.pow((arrayToProcess[i].viduriavimas - Centroids[j].viduriavimas), 2) + 
-              Math.pow((arrayToProcess[i].gerkle - Centroids[j].gerkle), 2));
+    minTree.forEach(element => {
 
-              if (oldDistance == -1) {
-                  oldDistance = distance;
-                  newGroup = j;
-              } else if (distance <= oldDistance) {
-                  newGroup = j;
-                  oldDistance = distance;
-              }
+      array.forEach( x => {
+        if (element.galine == x.pradine || x.galine == element.pradine) {
+
+          minTree.forEach( y => {
+            if (y.pradine == x.pradine && y.galine == x.galine) { insert_FLAG = false; }
+            if (y.pradine == x.galine && y.galine == x.pradine) { insert_FLAG = false; }
+          })
+
+          if (insert_FLAG) {
+            var pradiniuCount = 0;
+            var galiniuCount = 0;
+
+            for (i = 0; i < minTree.length; i++) {
+              if (minTree[i].pradine == x.pradine || minTree[i].pradine == x.galine) { pradiniuCount = parseInt(pradiniuCount) + 1; }
+              if (minTree[i].galine == x.galine || minTree[i].galine == x.pradine) { galiniuCount = parseInt(galiniuCount) + 1; }
+            }
+
+            if (parseInt(pradiniuCount) > 1 || parseInt(galiniuCount) > 1) { insert_FLAG = false; }
           }
-          Groups[newGroup].push(arrayToProcess[i]);
-      }
-      oldCentroids = Centroids;
-      for (j = 0; j < Clusters; j++) {
-          total = 0;
 
-          newCentroid = 0;
-          newCentroid = Groups[j][Groups[j].length/2]
-          Centroids[j] = newCentroid;
-      }
-      for (j = 0; j < Clusters; j++) {
-          if (JSON.stringify(Centroids[j]) != JSON.stringify(oldCentroids[j])) {
-              changed = true;
+          if (insert_FLAG && parseInt(lowestDistance.atstumas) > parseInt(x.atstumas)) {
+            lowestDistance = x;
+          } else {
+            insert_FLAG = true;
           }
-      }
-  } while (changed == true);
-
-  for (i = 0; i < Groups.length; i ++) {
-      for (j = 0; j < Groups[i].length;j++) {
-          Groups[i][j].klasteris = i;
         }
-      
+      })
+
+    })
+
+    if (lowestDistance.pradine != 'Z') {
+      minTree.push(lowestDistance);
+    }
   }
-  return Groups;
+} while (lowestDistance.pradine != 'Z')
+
+if (minTree.length == 7) {
+  minTree.pop();
 }
 
-module.exports = { readFile, kmeans };
+return minTree;
+}
+
+module.exports = {
+  readFile,
+  prim
+};
